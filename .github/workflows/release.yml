@@ -10,6 +10,8 @@ jobs:
   build-and-release:
     name: Build, Sign, Notarize, Release
     runs-on: macos-15        # Xcode 16+, required for Swift 6.0
+    permissions:
+      contents: write        # required to create GitHub Releases
 
     env:
       SCHEME:        Flit
