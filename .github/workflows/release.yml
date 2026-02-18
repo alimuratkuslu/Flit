@@ -1,0 +1,150 @@
+name: Release
+
+# Triggered when a version tag is pushed: git tag v1.0.0 && git push --tags
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    name: Build, Sign, Notarize, Release
+    runs-on: macos-14        # Apple Silicon runner; Xcode 15+
+
+    env:
+      SCHEME:        Flit
+      PROJECT:       Flit.xcodeproj
+      BUILD_DIR:     build
+      EXPORT_DIR:    build/export
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Parse version from tag ─────────────────────────────────────────
+      - name: Set VERSION from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"    # strip leading 'v'
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "DMG_NAME=Flit-$VERSION.dmg" >> "$GITHUB_ENV"
+
+      # ── 3. Import Developer ID certificate ───────────────────────────────
+      # Store your .p12 as base64 in secret CERT_P12 and the passphrase in CERT_PASSWORD
+      - name: Import signing certificate
+        env:
+          CERT_P12:       ${{ secrets.CERT_P12 }}
+          CERT_PASSWORD:  ${{ secrets.CERT_PASSWORD }}
+        run: |
+          KEYCHAIN=build.keychain
+          security create-keychain -p "" $KEYCHAIN
+          security default-keychain -s $KEYCHAIN
+          security unlock-keychain -p "" $KEYCHAIN
+          echo "$CERT_P12" | base64 --decode > cert.p12
+          security import cert.p12 -k $KEYCHAIN -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list \
+            -S apple-tool:,apple: -s -k "" $KEYCHAIN
+          rm cert.p12
+
+      # ── 4. Archive ────────────────────────────────────────────────────────
+      - name: Archive
+        run: |
+          mkdir -p $BUILD_DIR
+          xcodebuild \
+            -project  $PROJECT \
+            -scheme   $SCHEME \
+            -configuration Release \
+            -archivePath $BUILD_DIR/Flit.xcarchive \
+            archive
+
+      # ── 5. Export (signs with Developer ID via ExportOptions.plist) ───────
+      - name: Export .app
+        run: |
+          # Inject real Team ID into ExportOptions.plist
+          /usr/libexec/PlistBuddy -c \
+            "Set :teamID ${{ secrets.TEAM_ID }}" ExportOptions.plist
+          xcodebuild \
+            -exportArchive \
+            -archivePath   $BUILD_DIR/Flit.xcarchive \
+            -exportPath    $EXPORT_DIR \
+            -exportOptionsPlist ExportOptions.plist
+
+      # ── 6. Create DMG ─────────────────────────────────────────────────────
+      - name: Create DMG
+        run: |
+          hdiutil create \
+            -volname "Flit $VERSION" \
+            -srcfolder "$EXPORT_DIR/Flit.app" \
+            -ov \
+            -format UDZO \
+            "$BUILD_DIR/$DMG_NAME"
+
+      # ── 7. Notarize ───────────────────────────────────────────────────────
+      # Requires secrets: APPLE_ID, APP_PASSWORD (app-specific), TEAM_ID
+      - name: Notarize DMG
+        env:
+          APPLE_ID:     ${{ secrets.APPLE_ID }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+          TEAM_ID:      ${{ secrets.TEAM_ID }}
+        run: |
+          xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
+            --apple-id   "$APPLE_ID" \
+            --password   "$APP_PASSWORD" \
+            --team-id    "$TEAM_ID" \
+            --wait
+
+      # ── 8. Staple ─────────────────────────────────────────────────────────
+      - name: Staple notarization ticket
+        run: xcrun stapler staple "$BUILD_DIR/$DMG_NAME"
+
+      # ── 9. Compute SHA256 ─────────────────────────────────────────────────
+      - name: Compute SHA256
+        run: |
+          SHA256=$(shasum -a 256 "$BUILD_DIR/$DMG_NAME" | awk '{print $1}')
+          echo "SHA256=$SHA256" >> "$GITHUB_ENV"
+
+      # ── 10. Create GitHub Release ─────────────────────────────────────────
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "$BUILD_DIR/$DMG_NAME" \
+            --title "Flit $VERSION" \
+            --notes "## Flit $VERSION
+
+          ### Install via Homebrew
+          \`\`\`bash
+          brew tap alimuratkuslu/flit
+          brew install --cask flit
+          \`\`\`
+
+          ### Manual install
+          Download \`$DMG_NAME\`, open it, drag Flit.app to /Applications.
+
+          **SHA256:** \`$SHA256\`"
+
+      # ── 11. Update Homebrew Cask formula ─────────────────────────────────
+      # Requires a PAT with write access to homebrew-flit stored as TAP_REPO_TOKEN
+      - name: Update Homebrew Cask
+        env:
+          TAP_REPO_TOKEN: ${{ secrets.TAP_REPO_TOKEN }}
+        run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          git clone \
+            "https://x-access-token:$TAP_REPO_TOKEN@github.com/alimuratkuslu/homebrew-flit.git" \
+            tap-repo
+
+          FORMULA="tap-repo/Casks/flit.rb"
+
+          # Replace version and sha256 in the formula
+          sed -i '' "s/version \".*\"/version \"$VERSION\"/"   $FORMULA
+          sed -i '' "s/sha256 \".*\"/sha256 \"$SHA256\"/"     $FORMULA
+
+          cd tap-repo
+          git add Casks/flit.rb
+          git commit -m "Update flit to $VERSION"
+          git push

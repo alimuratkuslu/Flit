@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Distribution method: Developer ID for direct / Homebrew distribution -->
+    <key>method</key>
+    <string>developer-id</string>
+
+    <!-- Set to your 10-character Apple Team ID (found in developer.apple.com) -->
+    <key>teamID</key>
+    <string>TEAM_ID_PLACEHOLDER</string>
+
+    <!-- Embed provisioning profile by name if needed; omit for Developer ID method -->
+    <!-- <key>provisioningProfiles</key>
+    <dict>
+        <key>com.yourname.flit</key>
+        <string>Flit Developer ID Profile</string>
+    </dict> -->
+
+    <!-- Strip Swift standard libraries already in the OS (reduces .app size) -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+
+    <!-- Required for Gatekeeper acceptance -->
+    <key>hardcodedRuntimeVersion</key>
+    <string>13.0</string>
+</dict>
+</plist>
