@@ -2,13 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>hardcodedRuntimeVersion</key>
-	<string>13.0</string>
 	<key>method</key>
 	<string>developer-id</string>
-	<key>stripSwiftSymbols</key>
-	<true/>
 	<key>teamID</key>
 	<string>5JMBLLG6WT</string>
+	<key>stripSwiftSymbols</key>
+	<true/>
 </dict>
 </plist>

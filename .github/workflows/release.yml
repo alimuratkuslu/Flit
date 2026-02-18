@@ -88,11 +88,27 @@ jobs:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
           TEAM_ID:      ${{ secrets.TEAM_ID }}
         run: |
-          xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
-            --apple-id   "$APPLE_ID" \
-            --password   "$APP_PASSWORD" \
-            --team-id    "$TEAM_ID" \
-            --wait
+          RESULT=$(xcrun notarytool submit "$BUILD_DIR/$DMG_NAME" \
+            --apple-id  "$APPLE_ID" \
+            --password  "$APP_PASSWORD" \
+            --team-id   "$TEAM_ID" \
+            --wait \
+            --output-format json)
+          echo "$RESULT"
+
+          STATUS=$(echo "$RESULT" | python3 -c \
+            "import sys,json; print(json.load(sys.stdin).get('status','unknown'))")
+          ID=$(echo "$RESULT" | python3 -c \
+            "import sys,json; print(json.load(sys.stdin).get('id',''))")
+
+          if [ "$STATUS" != "Accepted" ]; then
+            echo "Notarization was rejected (status: $STATUS). Fetching Apple's rejection log..."
+            xcrun notarytool log "$ID" \
+              --apple-id  "$APPLE_ID" \
+              --password  "$APP_PASSWORD" \
+              --team-id   "$TEAM_ID" || true
+            exit 1
+          fi
 
       # ── 8. Staple ─────────────────────────────────────────────────────────
       - name: Staple notarization ticket
