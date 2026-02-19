@@ -14,6 +14,14 @@ final class SettingsStore: ObservableObject {
         didSet { UserDefaults.standard.set(showHUD, forKey: "flit_showHUD") }
     }
 
+    @Published var showHUDIcon: Bool = UserDefaults.standard.object(forKey: "flit_showHUDIcon") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(showHUDIcon, forKey: "flit_showHUDIcon") }
+    }
+
+    @Published var launchIfNotRunning: Bool = UserDefaults.standard.object(forKey: "flit_launchIfNotRunning") as? Bool ?? false {
+        didSet { UserDefaults.standard.set(launchIfNotRunning, forKey: "flit_launchIfNotRunning") }
+    }
+
     /// Key code for the Focus Back shortcut (Option+key). Default 6 = Z on ANSI keyboard.
     var focusBackKeyCode: Int {
         get {

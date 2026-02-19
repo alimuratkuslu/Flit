@@ -59,7 +59,8 @@ final class StatusBarController {
     private func buildMenu() {
         let menu = NSMenu()
 
-        let header = NSMenuItem(title: "Flit", action: nil, keyEquivalent: "")
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        let header = NSMenuItem(title: "Flit \(version)", action: nil, keyEquivalent: "")
         header.isEnabled = false
         menu.addItem(header)
 

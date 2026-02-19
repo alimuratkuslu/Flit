@@ -16,3 +16,7 @@ xcuserdata/
 
 # Claude Code local settings
 .claude/
+
+# Local planning/notes — not part of the shipped product
+CLAUDE.md
+IDEAS.md

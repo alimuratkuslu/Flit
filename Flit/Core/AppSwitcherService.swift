@@ -19,11 +19,17 @@ final class AppSwitcherService {
 
     /// Brings the running application with the given bundle ID to the foreground.
     /// If the app is already frontmost, cycles to its next visible window instead.
-    /// Does nothing if the app is not currently running.
+    /// If the app is not running and launchIfNotRunning is enabled, launches it.
     func activate(bundleID: String) {
         guard let app = NSRunningApplication
             .runningApplications(withBundleIdentifier: bundleID).first
-        else { return }  // not running → do nothing
+        else {
+            if SettingsStore.shared.launchIfNotRunning,
+               let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+                NSWorkspace.shared.openApplication(at: url, configuration: NSWorkspace.OpenConfiguration())
+            }
+            return
+        }
 
         // Record switch history for Focus Back (skip during history restore and window cycling)
         if !isRestoringHistory {

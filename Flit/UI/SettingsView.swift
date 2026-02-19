@@ -79,6 +79,15 @@ struct SettingsView: View {
                 Toggle("Show HUD on Switch", isOn: $store.showHUD)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
+
+                Toggle("Show App Icon in HUD", isOn: $store.showHUDIcon)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .disabled(!store.showHUD)
+
+                Toggle("Launch App if Not Running", isOn: $store.launchIfNotRunning)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
             }
 
             Divider()
