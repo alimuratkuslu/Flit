@@ -12,8 +12,8 @@ cask "flit" do
   app "Flit.app"
 
   postflight do
-    # Grant Accessibility permission prompt on first launch
-    system_command "/usr/bin/open", args: ["-a", "Flit"]
+    # Open by absolute path — Launch Services may not have indexed the app yet
+    system_command "/usr/bin/open", args: ["/Applications/Flit.app"]
   end
 
   livecheck do
