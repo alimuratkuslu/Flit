@@ -18,56 +18,98 @@ macOS 13+ &nbsp;·&nbsp; Menu bar app &nbsp;·&nbsp; No Dock icon &nbsp;·&nbsp;
 
 Flit sits quietly in your menu bar and listens for `Option + Number` shortcuts globally. Press `⌥1` and you're instantly in Safari. Press `⌥2` and you're in Terminal. No `Cmd+Tab` cycling, no mouse, no delay — just one keypress per app.
 
-Each of the 9 slots maps to an app you choose. If the app is minimized it unminimizes, if it's on a different Space macOS switches to it automatically. If the app isn't running, nothing happens.
+Each of the 9 slots maps to an app you choose. Press the same slot twice to cycle through that app's open windows. Press `⌥Z` to jump back to the previous app instantly.
+
+---
+
+## Features
+
+| Shortcut | Action |
+|---|---|
+| `⌥1` – `⌥9` | Switch to assigned app |
+| `⌥N` again | Cycle through that app's windows |
+| `⌥Z` | Focus back — return to previous app |
+| `⌥⌥` (double-tap) | Quick-Pick overlay — browse all slots |
+
+**Smart switching**
+- Minimized windows are automatically unminimized
+- Fullscreen apps switch Spaces automatically
+- A HUD badge confirms which slot activated
+
+**Settings**
+- Launch at Login — start Flit with macOS
+- Show HUD on Switch — floating badge with app icon and slot
+- Automatic updates via Sparkle
 
 ---
 
 ## Menu bar
 
-When Flit is running you'll see a small swift icon in your menu bar.
-
 ```
- ──────────────────
+ ──────────────────────
   Flit
- ──────────────────
-  Settings...  ⌘,
- ──────────────────
-  Quit Flit    ⌘Q
- ──────────────────
+ ──────────────────────
+  Check for Updates…
+ ──────────────────────
+  ⌥1 → Safari
+  ⌥2 → Terminal
+  ⌥4 → Xcode
+ ──────────────────────
+  Settings…        ⌘,
+ ──────────────────────
+  Quit Flit        ⌘Q
+ ──────────────────────
 ```
-
-Click it to open Settings or quit. That's the entire interface — everything else happens in the background.
 
 ---
 
-## How to assign apps to shortcuts
-
-1. Click the Flit icon in the menu bar → **Settings…**
-2. You'll see 9 rows, one for each shortcut slot
+## Settings
 
 ```
-┌─────────────────────────────────────────┐
-│  Flit                                   │
-│  Option+Number → instantly focus an app │
-├─────────────────────────────────────────┤
-│  ⌥1  │  Safari              ▾           │
-│  ⌥2  │  Terminal            ▾           │
-│  ⌥3  │  — None —            ▾           │
-│  ⌥4  │  Xcode               ▾           │
-│  ⌥5  │  — None —            ▾           │
-│  ⌥6  │  — None —            ▾           │
-│  ⌥7  │  — None —            ▾           │
-│  ⌥8  │  — None —            ▾           │
-│  ⌥9  │  — None —            ▾           │
-├─────────────────────────────────────────┤
-│  ⌥+Number shortcuts are active globally │  Done  │
-└─────────────────────────────────────────┘
+┌──────────────────────────────────────────┐
+│  Flit                                    │
+│  Option+Number → instantly focus an app  │
+├──────────────────────────────────────────┤
+│  ⌥1  │  Safari               ▾        ● │
+│  ⌥2  │  Terminal             ▾        ● │
+│  ⌥3  │  — None —             ▾          │
+│  ⌥4  │  Xcode                ▾        ● │
+│  ⌥5  │  — None —             ▾          │
+│  ⌥6  │  — None —             ▾          │
+│  ⌥7  │  — None —             ▾          │
+│  ⌥8  │  — None —             ▾          │
+│  ⌥9  │  — None —             ▾          │
+├──────────────────────────────────────────┤
+│  [✓] Launch at Login                     │
+│  [✓] Show HUD on Switch                  │
+├──────────────────────────────────────────┤
+│                                  [ Done ]│
+└──────────────────────────────────────────┘
 ```
 
-3. Click the dropdown next to any slot and pick an app from the list
-4. Click **Done** — the shortcut works immediately, no restart needed
+● = app is currently running
 
-Assignments are saved automatically and survive reboots.
+---
+
+## Quick-Pick Overlay
+
+Double-tap `Option` to open a floating grid of all assigned slots. Click any icon to switch — or press `Escape` to dismiss.
+
+```
+┌─────────────────────────────────────┐
+│           Quick Switch              │
+│  ┌───────┐  ┌───────┐  ┌───────┐   │
+│  │  🦊   │  │  >_   │  │       │   │
+│  │Safari │  │ Term  │  │ None  │   │
+│  │  ⌥1   │  │  ⌥2   │  │  ⌥3   │   │
+│  └───────┘  └───────┘  └───────┘   │
+│  ┌───────┐  ┌───────┐  ┌───────┐   │
+│  │  ⚒   │  │       │  │       │   │
+│  │ Xcode │  │ None  │  │ None  │   │
+│  │  ⌥4   │  │  ⌥5   │  │  ⌥6   │   │
+│  └───────┘  └───────┘  └───────┘   │
+└─────────────────────────────────────┘
+```
 
 ---
 
