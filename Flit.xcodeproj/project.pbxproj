@@ -18,6 +18,9 @@
 		BB000000000000000000FF09 /* AppPickerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000FF09 /* AppPickerRow.swift */; };
 		BB000000000000000000FF0A /* PermissionBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000FF0A /* PermissionBannerView.swift */; };
 		BB000000000000000000FF0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000FF0C /* Assets.xcassets */; };
+		B1C2D3E4F5A6B7C8 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3D4E5F6A7B8 /* Sparkle */; };
+		BB000000000000000000FF0E /* SlotHUDController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000FF0E /* SlotHUDController.swift */; };
+		BB000000000000000000FF0F /* QuickPickOverlayController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000FF0F /* QuickPickOverlayController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +37,8 @@
 		AA000000000000000000FF0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA000000000000000000FF0C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA000000000000000000FF0D /* Flit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Flit.entitlements; sourceTree = "<group>"; };
+		AA000000000000000000FF0E /* SlotHUDController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlotHUDController.swift; sourceTree = "<group>"; };
+		AA000000000000000000FF0F /* QuickPickOverlayController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickPickOverlayController.swift; sourceTree = "<group>"; };
 		AA000000000000000000AA05 /* Flit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -42,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1C2D3E4F5A6B7C8 /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +92,7 @@
 				AA000000000000000000FF03 /* HotkeyManager.swift */,
 				AA000000000000000000FF04 /* AppSwitcherService.swift */,
 				AA000000000000000000FF05 /* AppListProvider.swift */,
+				AA000000000000000000FF0E /* SlotHUDController.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -105,6 +112,7 @@
 				AA000000000000000000FF08 /* SettingsView.swift */,
 				AA000000000000000000FF09 /* AppPickerRow.swift */,
 				AA000000000000000000FF0A /* PermissionBannerView.swift */,
+				AA000000000000000000FF0F /* QuickPickOverlayController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -126,6 +134,7 @@
 			);
 			name = Flit;
 			packageProductDependencies = (
+				A1B2C3D4E5F6A7B8 /* Sparkle */,
 			);
 			productName = Flit;
 			productReference = AA000000000000000000AA05 /* Flit.app */;
@@ -157,6 +166,9 @@
 			mainGroup = AA000000000000000000AA03;
 			minimumXcodeVersion = 16.0;
 			productRefGroup = AA000000000000000000AA04 /* Products */;
+			packageReferences = (
+				F1A2B3C4D5E6F7A8 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -191,6 +203,8 @@
 				BB000000000000000000FF08 /* SettingsView.swift in Sources */,
 				BB000000000000000000FF09 /* AppPickerRow.swift in Sources */,
 				BB000000000000000000FF0A /* PermissionBannerView.swift in Sources */,
+				BB000000000000000000FF0E /* SlotHUDController.swift in Sources */,
+				BB000000000000000000FF0F /* QuickPickOverlayController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -391,6 +405,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F1A2B3C4D5E6F7A8 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A1B2C3D4E5F6A7B8 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1A2B3C4D5E6F7A8 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 	};
 	rootObject = AA000000000000000000AA01 /* Project object */;

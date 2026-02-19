@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import ServiceManagement
 
 final class SettingsStore: ObservableObject {
 
@@ -8,6 +9,35 @@ final class SettingsStore: ObservableObject {
 
     @Published private(set) var assignments: [Int: String] = [:]
     private let keyPrefix = "flit_slot_"
+
+    @Published var showHUD: Bool = UserDefaults.standard.object(forKey: "flit_showHUD") as? Bool ?? true {
+        didSet { UserDefaults.standard.set(showHUD, forKey: "flit_showHUD") }
+    }
+
+    /// Key code for the Focus Back shortcut (Option+key). Default 6 = Z on ANSI keyboard.
+    var focusBackKeyCode: Int {
+        get {
+            let v = UserDefaults.standard.integer(forKey: "flit_focusBackKeyCode")
+            return v == 0 ? 6 : v   // 0 means not set; default to Z
+        }
+        set { UserDefaults.standard.set(newValue, forKey: "flit_focusBackKeyCode") }
+    }
+
+    // MARK: - Launch at Login
+
+    var launchAtLogin: Bool { SMAppService.mainApp.status == .enabled }
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            print("Flit: LaunchAtLogin error: \(error)")
+        }
+    }
 
     // MARK: - Public API
 

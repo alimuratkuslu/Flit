@@ -5,6 +5,18 @@ final class AppSwitcherService {
     nonisolated(unsafe) static let shared = AppSwitcherService()
     private init() {}
 
+    private var switchHistory: [String] = []   // max 10, session-only
+    private var isRestoringHistory = false
+
+    /// Activates the previously active app (used by Focus Back / Option+Z).
+    func activatePrevious() {
+        guard !switchHistory.isEmpty else { return }
+        let bundleID = switchHistory.removeLast()
+        isRestoringHistory = true
+        activate(bundleID: bundleID)
+        isRestoringHistory = false
+    }
+
     /// Brings the running application with the given bundle ID to the foreground.
     /// If the app is already frontmost, cycles to its next visible window instead.
     /// Does nothing if the app is not currently running.
@@ -12,6 +24,16 @@ final class AppSwitcherService {
         guard let app = NSRunningApplication
             .runningApplications(withBundleIdentifier: bundleID).first
         else { return }  // not running → do nothing
+
+        // Record switch history for Focus Back (skip during history restore and window cycling)
+        if !isRestoringHistory {
+            if let currentID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier,
+               currentID != bundleID,
+               currentID != Bundle.main.bundleIdentifier {
+                switchHistory.append(currentID)
+                if switchHistory.count > 10 { switchHistory.removeFirst() }
+            }
+        }
 
         // If the target app is already frontmost, cycle its windows and return early.
         // This check MUST come before unhide/deminiaturize to avoid incorrect side-effects.
@@ -31,6 +53,16 @@ final class AppSwitcherService {
             app.activate()              // new API: always ignores other apps
         } else {
             app.activate(options: [.activateIgnoringOtherApps])
+        }
+
+        // Show switch HUD (dispatch to main actor since SlotHUDController is @MainActor)
+        if SettingsStore.shared.showHUD {
+            let slot = SettingsStore.shared.assignments.first(where: { $0.value == bundleID })?.key
+            let name = app.localizedName ?? bundleID
+            let icon = app.icon ?? NSImage()
+            DispatchQueue.main.async {
+                SlotHUDController.shared.show(appName: name, appIcon: icon, slot: slot)
+            }
         }
     }
 

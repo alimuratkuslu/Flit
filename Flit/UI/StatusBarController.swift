@@ -1,4 +1,5 @@
 import AppKit
+import Sparkle
 import SwiftUI
 
 @MainActor
@@ -9,10 +10,12 @@ final class StatusBarController {
 
     private let store: SettingsStore
     private let listProvider: AppListProvider
+    private let updater: SPUUpdater
 
-    init(store: SettingsStore, listProvider: AppListProvider) {
+    init(store: SettingsStore, listProvider: AppListProvider, updater: SPUUpdater) {
         self.store = store
         self.listProvider = listProvider
+        self.updater = updater
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
 
@@ -62,6 +65,16 @@ final class StatusBarController {
 
         menu.addItem(.separator())
 
+        let updateItem = NSMenuItem(
+            title: "Check for Updates\u{2026}",
+            action: #selector(checkForUpdates),
+            keyEquivalent: ""
+        )
+        updateItem.target = self
+        menu.addItem(updateItem)
+
+        menu.addItem(.separator())
+
         let settingsItem = NSMenuItem(
             title: "Settings...",
             action: #selector(openSettings),
@@ -80,6 +93,12 @@ final class StatusBarController {
         menu.addItem(quitItem)
 
         statusItem.menu = menu
+    }
+
+    // MARK: - Updates
+
+    @objc private func checkForUpdates() {
+        updater.checkForUpdates()
     }
 
     // MARK: - Settings Window

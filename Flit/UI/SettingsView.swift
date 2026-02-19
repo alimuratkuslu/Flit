@@ -67,6 +67,22 @@ struct SettingsView: View {
 
             Divider()
 
+            // ── Toggle options ────────────────────────────────────────────
+            VStack(alignment: .leading, spacing: 0) {
+                Toggle("Launch at Login", isOn: Binding(
+                    get: { store.launchAtLogin },
+                    set: { store.setLaunchAtLogin($0) }
+                ))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+
+                Toggle("Show HUD on Switch", isOn: $store.showHUD)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+            }
+
+            Divider()
+
             // ── Footer ────────────────────────────────────────────────────
             HStack {
                 Text("⌥+Number shortcuts are active globally")
@@ -83,7 +99,7 @@ struct SettingsView: View {
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
         }
-        .frame(width: 500, height: 540)
+        .frame(width: 500, height: 580)
         .onAppear {
             isTrusted = AXIsProcessTrusted()
         }

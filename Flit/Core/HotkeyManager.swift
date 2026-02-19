@@ -10,7 +10,11 @@ final class HotkeyManager: @unchecked Sendable {
     private var runLoopSource: CFRunLoopSource?
 
     private let store: SettingsStore
-    private let switcher: AppSwitcherService
+    let switcher: AppSwitcherService
+
+    // Double-Option detection state
+    var lastOptionDownTime: CFAbsoluteTime = 0
+    var optionKeyIsDown: Bool = false
 
     // Hardware key codes for the number row on ANSI/US keyboards.
     // These are physical scan codes — NOT ASCII values.
@@ -42,6 +46,7 @@ final class HotkeyManager: @unchecked Sendable {
         // for the entire app lifetime, so self won't be deallocated.
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         let eventMask: CGEventMask = (1 << CGEventType.keyDown.rawValue)
+                                   | (1 << CGEventType.flagsChanged.rawValue)
 
         guard let tap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
@@ -59,7 +64,7 @@ final class HotkeyManager: @unchecked Sendable {
         runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
-        print("[HotkeyManager] Started — listening for ⌥+1 through ⌥+9")
+        print("[HotkeyManager] Started — listening for ⌥+1 through ⌥+9, ⌥+Z, and double-⌥")
     }
 
     func stop() {
@@ -116,6 +121,28 @@ private func hotkeyEventCallback(
         return nil
     }
 
+    // Handle flags-changed events for double-Option detection.
+    if type.rawValue == 12 {  // kCGEventFlagsChanged
+        let flags = event.flags
+        let optionNowDown = flags.contains(.maskAlternate)
+
+        if optionNowDown && !manager.optionKeyIsDown {
+            // Option key just pressed down
+            let now = CFAbsoluteTimeGetCurrent()
+            let elapsed = now - manager.lastOptionDownTime
+            manager.lastOptionDownTime = now
+
+            if elapsed < 0.30 {
+                // Double-tap detected
+                DispatchQueue.main.async {
+                    QuickPickOverlayController.shared.toggle()
+                }
+            }
+        }
+        manager.optionKeyIsDown = optionNowDown
+        return Unmanaged.passRetained(event)  // always pass flags-changed events through
+    }
+
     guard type == .keyDown else {
         return Unmanaged.passRetained(event)
     }
@@ -129,15 +156,22 @@ private func hotkeyEventCallback(
                     && !flags.contains(.maskControl)
                     && !flags.contains(.maskShift)
 
-    guard isOptionOnly, let slot = HotkeyManager.keyCodeToSlot[keyCode] else {
-        return Unmanaged.passRetained(event)   // not our shortcut — pass through
+    // Check slot keys (⌥+1 through ⌥+9) first — these take priority.
+    if isOptionOnly, let slot = HotkeyManager.keyCodeToSlot[keyCode] {
+        // Switch to main thread before touching AppKit / our state.
+        DispatchQueue.main.async {
+            manager.activateSlot(slot)
+        }
+        // Return nil to consume this event — it won't reach any other app.
+        return nil
     }
 
-    // Switch to main thread before touching AppKit / our state.
-    DispatchQueue.main.async {
-        manager.activateSlot(slot)
+    // Focus Back — Option+Z (or user-configured key) to switch to previous app.
+    let focusBackKeyCode = CGKeyCode(SettingsStore.shared.focusBackKeyCode)
+    if isOptionOnly, keyCode == focusBackKeyCode {
+        DispatchQueue.main.async { manager.switcher.activatePrevious() }
+        return nil  // consume event
     }
 
-    // Return nil to consume this event — it won't reach any other app.
-    return nil
+    return Unmanaged.passRetained(event)   // not our shortcut — pass through
 }

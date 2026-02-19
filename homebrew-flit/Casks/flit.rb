@@ -11,6 +11,12 @@ cask "flit" do
 
   app "Flit.app"
 
+  caveats <<~EOS
+    After installation, open Flit from /Applications or Spotlight.
+    On first launch, grant Accessibility permissions when prompted
+    (System Settings > Privacy & Security > Accessibility).
+  EOS
+
   livecheck do
     url :homepage
     strategy :github_latest

@@ -120,6 +120,7 @@ jobs:
       - name: Compute SHA256
         run: |
           SHA256=$(shasum -a 256 "$BUILD_DIR/$DMG_NAME" | awk '{print $1}')
+          [ -z "$SHA256" ] && { echo "SHA256 computation failed — aborting"; exit 1; }
           echo "SHA256=$SHA256" >> "$GITHUB_ENV"
 
       # ── 10. Create GitHub Release ─────────────────────────────────────────
