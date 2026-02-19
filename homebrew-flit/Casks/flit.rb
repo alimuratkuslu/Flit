@@ -11,11 +11,6 @@ cask "flit" do
 
   app "Flit.app"
 
-  postflight do
-    # Open by absolute path — Launch Services may not have indexed the app yet
-    system_command "/usr/bin/open", args: ["/Applications/Flit.app"]
-  end
-
   livecheck do
     url :homepage
     strategy :github_latest

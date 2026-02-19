@@ -158,7 +158,9 @@ jobs:
 
           FORMULA="tap-repo/Casks/flit.rb"
 
-          # Replace version and sha256 in the formula
+          # Use the formula from this repo as the source of truth,
+          # then inject the real version and sha256 for this release.
+          cp homebrew-flit/Casks/flit.rb "$FORMULA"
           sed -i '' "s/version \".*\"/version \"$VERSION\"/"   $FORMULA
           sed -i '' "s/sha256 \".*\"/sha256 \"$SHA256\"/"     $FORMULA
 
