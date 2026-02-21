@@ -1,6 +1,6 @@
 # Flit — Product Requirements Document
 
-## Overview ##
+## Overview
 
 **Flit** is a lightweight macOS menu bar app that lets users instantly switch to any running application using `Option+1` through `Option+9` keyboard shortcuts. Each number slot maps to a specific app (by bundle ID). If the target app is not running, the shortcut does nothing.
 
